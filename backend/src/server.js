@@ -17,7 +17,22 @@ const bookRoutes = require('./routes/books');
 
 const app = express();
 
-// ✅ HEALTH CHECK - Add this FIRST (before any middleware)
+// ✅ CORS MUST BE FIRST - Before any routes
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Cookie', 'Authorization']
+}));
+
+// Handle preflight requests
+app.options('*', cors());
+
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
+
+// ✅ HEALTH CHECK
 app.get('/health', (req, res) => {
   console.log('✅ Health check called');
   res.status(200).send('OK');
@@ -38,18 +53,6 @@ app.get('/api/test', (req, res) => {
   console.log('✅ Test route called');
   res.json({ message: 'Backend is working!' });
 });
-
-// ✅ FIXED CORS - Allow Vercel frontend with proper methods
-app.use(cors({
-  origin: ['http://localhost:3000', 'https://book-burrow-a-personal-book-manager.vercel.app', 'https://*.vercel.app'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Cookie', 'Authorization']
-}));
-
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);
