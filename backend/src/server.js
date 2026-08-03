@@ -14,20 +14,12 @@ const bookRoutes = require('./routes/books');
 
 const app = express();
 
-// ✅ HEALTH CHECK - Add this FIRST
+// ✅ HEALTH CHECK - Add this FIRST (before any middleware)
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
-app.use(cors({
-  origin: ['http://localhost:3000', 'https://*.vercel.app', 'https://*.railway.app'],
-  credentials: true
-}));
-
-// Root route - for Railway health check
+// Root route
 app.get('/', (req, res) => {
   res.json({ 
     message: 'BookBurrow API is running!',
@@ -41,9 +33,34 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is working!' });
 });
 
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://*.vercel.app', 'https://*.railway.app'],
+  credentials: true
+}));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ 
+    message: 'Route not found',
+    path: req.originalUrl
+  });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Error:', err.message);
+  res.status(500).json({ 
+    message: 'Internal server error',
+    error: err.message
+  });
+});
 
 // MongoDB connection
 const connectDB = async () => {
@@ -67,6 +84,6 @@ connectDB();
 
 // Use PORT from environment variable (Railway sets this)
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
 });
