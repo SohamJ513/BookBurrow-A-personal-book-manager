@@ -18,23 +18,38 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: ['http://localhost:3000', 'https://*.vercel.app', 'https://*.railway.app'],
   credentials: true
 }));
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/books', bookRoutes);
+// Root route - for Railway health check
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'BookBurrow API is running!',
+    status: 'online',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is working!' });
 });
 
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/books', bookRoutes);
+
 // MongoDB connection
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    const uri = process.env.MONGODB_URI;
+    if (!uri) {
+      throw new Error('MONGODB_URI is not defined in environment variables');
+    }
+    
+    console.log('🔍 Attempting to connect to MongoDB Atlas...');
+    await mongoose.connect(uri);
     console.log('✅ Connected to MongoDB');
     console.log(`📦 Database: ${mongoose.connection.name}`);
   } catch (error) {
@@ -45,6 +60,7 @@ const connectDB = async () => {
 
 connectDB();
 
+// Use PORT from environment variable (Railway sets this)
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
