@@ -12,10 +12,32 @@ export default function Dashboard() {
   const [goalData, setGoalData] = useState(null);
   const [showGoalModal, setShowGoalModal] = useState(false);
   const [newGoal, setNewGoal] = useState(12);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Function to refresh stats
+  const refreshStats = () => {
+    setRefreshKey(prev => prev + 1);
+  };
 
   useEffect(() => {
     fetchStats();
     fetchGoalProgress();
+  }, [refreshKey]);
+
+  // Listen for book updates from books page
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'refreshDashboard') {
+        fetchStats();
+        fetchGoalProgress();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const fetchStats = async () => {

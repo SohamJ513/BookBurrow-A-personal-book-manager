@@ -29,18 +29,32 @@ exports.getBook = async (req, res) => {
   }
 };
 
-// Create book - UPDATED with progress fields
+// Create book - Auto-set status based on progress
 exports.createBook = async (req, res) => {
   try {
     const { title, author, tags, status, progress, totalPages, currentPage } = req.body;
+    
+    // Calculate progress
+    let calculatedProgress = progress || 0;
+    if (totalPages > 0 && currentPage) {
+      calculatedProgress = Math.min(Math.round((currentPage / totalPages) * 100), 100);
+    }
+    
+    // Auto-set status based on progress
+    let autoStatus = status || 'want-to-read';
+    if (calculatedProgress >= 100) {
+      autoStatus = 'completed';
+    } else if (calculatedProgress > 0 && calculatedProgress < 100) {
+      autoStatus = 'reading';
+    }
     
     const book = await Book.create({
       userId: req.userId,
       title,
       author,
       tags: tags || [],
-      status: status || 'want-to-read',
-      progress: progress || 0,
+      status: autoStatus,
+      progress: calculatedProgress,
       totalPages: totalPages || 0,
       currentPage: currentPage || 0
     });
@@ -51,10 +65,25 @@ exports.createBook = async (req, res) => {
   }
 };
 
-// Update book - UPDATED with progress fields
+// Update book - Auto-update status based on progress
 exports.updateBook = async (req, res) => {
   try {
     const { title, author, tags, status, progress, totalPages, currentPage } = req.body;
+    
+    // Calculate progress if currentPage and totalPages are provided
+    let calculatedProgress = progress;
+    if (totalPages > 0 && currentPage !== undefined) {
+      calculatedProgress = Math.min(Math.round((currentPage / totalPages) * 100), 100);
+    }
+    
+    // Auto-update status based on progress
+    let updatedStatus = status;
+    if (calculatedProgress >= 100) {
+      updatedStatus = 'completed';
+    } else if (calculatedProgress > 0 && calculatedProgress < 100) {
+      updatedStatus = 'reading';
+    }
+    // If progress is 0, keep the original status (want-to-read or reading)
     
     const book = await Book.findOneAndUpdate(
       { _id: req.params.id, userId: req.userId },
@@ -62,8 +91,8 @@ exports.updateBook = async (req, res) => {
         title, 
         author, 
         tags, 
-        status,
-        progress: progress !== undefined ? progress : 0,
+        status: updatedStatus,
+        progress: calculatedProgress !== undefined ? calculatedProgress : 0,
         totalPages: totalPages || 0,
         currentPage: currentPage || 0
       },

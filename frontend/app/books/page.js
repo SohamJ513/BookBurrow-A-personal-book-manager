@@ -60,6 +60,10 @@ export default function BooksPage() {
 
       resetForm();
       fetchBooks();
+      
+      // ✅ Notify dashboard to refresh stats
+      sessionStorage.setItem('refreshDashboard', Date.now().toString());
+      
     } catch (error) {
       toast.error(error.response?.data?.message || 'Something went wrong');
     }
@@ -72,6 +76,10 @@ export default function BooksPage() {
       await api.delete(`/books/${id}`);
       toast.success('Book deleted successfully!');
       fetchBooks();
+      
+      // ✅ Notify dashboard to refresh stats
+      sessionStorage.setItem('refreshDashboard', Date.now().toString());
+      
     } catch (error) {
       toast.error('Failed to delete book');
     }
