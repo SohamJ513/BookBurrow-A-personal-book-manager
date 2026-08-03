@@ -14,6 +14,11 @@ const bookRoutes = require('./routes/books');
 
 const app = express();
 
+// ✅ HEALTH CHECK - Add this FIRST
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
