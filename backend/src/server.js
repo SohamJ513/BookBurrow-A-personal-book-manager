@@ -17,31 +17,15 @@ const bookRoutes = require('./routes/books');
 
 const app = express();
 
-// ✅ CORS - Explicit headers for all routes
-app.use((req, res, next) => {
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'https://book-burrow-a-personal-book-manager.vercel.app',
-    'https://*.vercel.app'
-  ];
-  
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin) || origin?.includes('vercel.app')) {
-    res.header('Access-Control-Allow-Origin', origin);
-  } else {
-    res.header('Access-Control-Allow-Origin', '*');
-  }
-  
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Cookie, Authorization');
-  res.header('Access-Control-Max-Age', '86400');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).send();
-  }
-  next();
-});
+// ✅ CORS - Using cors package with proper configuration
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With', 'Accept'],
+  exposedHeaders: ['Set-Cookie'],
+  maxAge: 86400
+}));
 
 // Middleware
 app.use(express.json());
