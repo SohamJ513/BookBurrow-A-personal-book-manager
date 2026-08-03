@@ -25,8 +25,17 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Cookie', 'Authorization']
 }));
 
-// Handle preflight requests
-app.options('*', cors());
+// ✅ FIX: Handle preflight requests manually (Express 5 compatible)
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Cookie, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    return res.status(200).send();
+  }
+  next();
+});
 
 // Middleware
 app.use(express.json());
