@@ -60,10 +60,12 @@ exports.login = async (req, res) => {
 
     const token = generateToken(user._id);
 
+    // ✅ FIXED: sameSite must be 'none' and secure must be true
+    // for the cookie to work across different domains (Vercel <-> Railway)
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
@@ -79,7 +81,13 @@ exports.login = async (req, res) => {
 
 // Logout
 exports.logout = (req, res) => {
-  res.clearCookie('token');
+  // ✅ FIXED: clearCookie options must match the options used when
+  // the cookie was set, or the browser won't recognize it as the same cookie
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none'
+  });
   res.json({ message: 'Logged out successfully' });
 };
 
