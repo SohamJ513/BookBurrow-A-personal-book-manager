@@ -17,9 +17,15 @@ const bookRoutes = require('./routes/books');
 
 const app = express();
 
-// ✅ CORS - Using cors package with proper configuration
+// ✅ CORS - Allow all origins with proper configuration
 app.use(cors({
-  origin: true,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow any origin for testing
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With', 'Accept'],
@@ -31,12 +37,11 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ FAST HEALTH CHECK
+// ✅ Routes - Define ALL routes BEFORE starting server
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-// Root route
 app.get('/', (req, res) => {
   res.json({ 
     message: 'BookBurrow API is running!',
@@ -45,16 +50,15 @@ app.get('/', (req, res) => {
   });
 });
 
-// Test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is working!' });
 });
 
-// Routes
+// Auth and Book routes
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 
-// 404 handler
+// 404 handler - MUST be after all routes
 app.use((req, res) => {
   res.status(404).json({ 
     message: 'Route not found',
