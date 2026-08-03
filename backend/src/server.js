@@ -19,11 +19,13 @@ const app = express();
 
 // ✅ HEALTH CHECK - Add this FIRST (before any middleware)
 app.get('/health', (req, res) => {
+  console.log('✅ Health check called');
   res.status(200).send('OK');
 });
 
 // Root route
 app.get('/', (req, res) => {
+  console.log('✅ Root route called');
   res.json({ 
     message: 'BookBurrow API is running!',
     status: 'online',
@@ -33,6 +35,7 @@ app.get('/', (req, res) => {
 
 // Test route
 app.get('/api/test', (req, res) => {
+  console.log('✅ Test route called');
   res.json({ message: 'Backend is working!' });
 });
 
@@ -48,8 +51,9 @@ app.use(cors({
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 
-// 404 handler
+// 404 handler - must be last
 app.use((req, res) => {
+  console.log(`❌ Route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ 
     message: 'Route not found',
     path: req.originalUrl
@@ -58,7 +62,7 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err.message);
+  console.error('❌ Error:', err.message);
   res.status(500).json({ 
     message: 'Internal server error',
     error: err.message
