@@ -39,13 +39,17 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is working!' });
 });
 
+// ✅ FIXED CORS - Allow Vercel frontend with proper methods
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://book-burrow-a-personal-book-manager.vercel.app', 'https://*.vercel.app'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Cookie', 'Authorization']
+}));
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin: ['http://localhost:3000', 'https://*.vercel.app', 'https://*.railway.app'],
-  credentials: true
-}));
 
 // Routes
 app.use('/api/auth', authRoutes);
