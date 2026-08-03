@@ -73,54 +73,6 @@
 
 ---
 
-## 📁 Project Structure
-bookburrow/
-├── backend/
-│ ├── src/
-│ │ ├── config/ # Configuration files
-│ │ ├── controllers/ # Route controllers
-│ │ │ ├── authController.js
-│ │ │ └── bookController.js
-│ │ ├── middleware/ # Custom middleware
-│ │ │ └── auth.js
-│ │ ├── models/ # Database models
-│ │ │ ├── User.js
-│ │ │ └── Book.js
-│ │ ├── routes/ # API routes
-│ │ │ ├── auth.js
-│ │ │ └── books.js
-│ │ └── server.js # Entry point
-│ ├── .env.example
-│ └── package.json
-│
-├── frontend/
-│ ├── app/
-│ │ ├── (auth)/ # Auth pages
-│ │ │ ├── login/page.js
-│ │ │ └── signup/page.js
-│ │ ├── books/page.js # Books management
-│ │ ├── dashboard/page.js # Dashboard
-│ │ ├── layout.js # Root layout
-│ │ └── page.js # Landing page
-│ ├── components/
-│ │ ├── Navbar.js
-│ │ ├── Footer.js
-│ │ └── ProtectedRoute.js
-│ ├── context/
-│ │ ├── AuthContext.js
-│ │ └── ThemeContext.js
-│ ├── utils/
-│ │ └── api.js
-│ ├── .env.local.example
-│ └── package.json
-│
-├── .env.example
-├── .gitignore
-└── README.md
-
-
----
-
 ## 🚀 Getting Started
 
 ### Prerequisites
