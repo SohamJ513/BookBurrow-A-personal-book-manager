@@ -2,6 +2,9 @@
 const dns = require('node:dns').promises;
 dns.setServers(['8.8.8.8', '1.1.1.1']);
 
+// ✅ Add crypto import - needed for JWT and bcrypt
+const crypto = require('crypto');
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
