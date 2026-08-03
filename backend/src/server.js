@@ -17,21 +17,27 @@ const bookRoutes = require('./routes/books');
 
 const app = express();
 
-// ✅ CORS MUST BE FIRST - Before any routes
-app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Cookie', 'Authorization']
-}));
-
-// ✅ FIX: Handle preflight requests manually (Express 5 compatible)
+// ✅ CORS - Explicit headers for all routes
 app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'https://book-burrow-a-personal-book-manager.vercel.app',
+    'https://*.vercel.app'
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin) || origin?.includes('vercel.app')) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Cookie, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+  
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Cookie, Authorization');
+  res.header('Access-Control-Max-Age', '86400');
+  
+  if (req.method === 'OPTIONS') {
     return res.status(200).send();
   }
   next();
@@ -101,7 +107,6 @@ const connectDB = async () => {
   }
 };
 
-// Don't wait for DB connection to start server
 connectDB();
 
 const PORT = process.env.PORT || 5000;
