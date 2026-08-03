@@ -32,15 +32,13 @@ app.options('*', cors());
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ HEALTH CHECK
+// ✅ FAST HEALTH CHECK - No DB connection needed
 app.get('/health', (req, res) => {
-  console.log('✅ Health check called');
   res.status(200).send('OK');
 });
 
 // Root route
 app.get('/', (req, res) => {
-  console.log('✅ Root route called');
   res.json({ 
     message: 'BookBurrow API is running!',
     status: 'online',
@@ -50,7 +48,6 @@ app.get('/', (req, res) => {
 
 // Test route
 app.get('/api/test', (req, res) => {
-  console.log('✅ Test route called');
   res.json({ message: 'Backend is working!' });
 });
 
@@ -60,7 +57,6 @@ app.use('/api/books', bookRoutes);
 
 // 404 handler - must be last
 app.use((req, res) => {
-  console.log(`❌ Route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ 
     message: 'Route not found',
     path: req.originalUrl
@@ -76,12 +72,13 @@ app.use((err, req, res, next) => {
   });
 });
 
-// MongoDB connection
+// MongoDB connection - Don't block startup
 const connectDB = async () => {
   try {
     const uri = process.env.MONGODB_URI;
     if (!uri) {
-      throw new Error('MONGODB_URI is not defined in environment variables');
+      console.error('❌ MONGODB_URI is not defined in environment variables');
+      return;
     }
     
     console.log('🔍 Attempting to connect to MongoDB Atlas...');
@@ -90,13 +87,12 @@ const connectDB = async () => {
     console.log(`📦 Database: ${mongoose.connection.name}`);
   } catch (error) {
     console.error('❌ MongoDB error:', error.message);
-    process.exit(1);
   }
 };
 
+// Don't wait for DB connection to start server
 connectDB();
 
-// Use PORT from environment variable (Railway sets this)
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
