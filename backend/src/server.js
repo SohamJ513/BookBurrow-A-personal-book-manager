@@ -32,7 +32,7 @@ app.options('*', cors());
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ FAST HEALTH CHECK - No DB connection needed
+// ✅ FAST HEALTH CHECK
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
@@ -55,7 +55,7 @@ app.get('/api/test', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 
-// 404 handler - must be last
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({ 
     message: 'Route not found',
@@ -72,12 +72,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-// MongoDB connection - Don't block startup
+// MongoDB connection
 const connectDB = async () => {
   try {
     const uri = process.env.MONGODB_URI;
+    console.log('🔍 MONGODB_URI exists?', uri ? 'Yes' : 'No');
+    
     if (!uri) {
-      console.error('❌ MONGODB_URI is not defined in environment variables');
+      console.error('❌ MONGODB_URI is not defined');
       return;
     }
     
